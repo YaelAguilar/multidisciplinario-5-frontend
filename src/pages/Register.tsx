@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import useAuth from '../context/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import axios from '../api/axiosConfig';
 
 const Register: React.FC = () => {
-  const { handleRegister } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +16,7 @@ const Register: React.FC = () => {
     setError(null);
     setSuccess(null);
     try {
-      await handleRegister(name, email, password);
+      await axios.post('/user/register', { name, email, password });
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => {
         navigate('/dashboard');

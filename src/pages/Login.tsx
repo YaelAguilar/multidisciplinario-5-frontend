@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import useAuth from '../context/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
+import axios from '../api/axiosConfig';
 
 const Login: React.FC = () => {
-  const { handleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +15,7 @@ const Login: React.FC = () => {
     setError(null);
     setSuccess(null);
     try {
-      await handleLogin(email, password);
+      await axios.post('/user/login', { email, password });
       setSuccess('Login successful! Redirecting...');
       setTimeout(() => {
         navigate('/dashboard');
