@@ -1,7 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import { FaThermometerHalf, FaTint, FaLightbulb, FaCog, FaExclamationTriangle, FaCheck, FaSun } from 'react-icons/fa';
 
+interface SensorData {
+  type: string;
+  value: number;
+  unit: string;
+  kitId: string;
+}
+
 const Dashboard: React.FC = () => {
+  const [temperature, setTemperature] = useState<string | null>(null);
+  const [humidity, setHumidity] = useState<string | null>(null);
+  const [light, setLight] = useState<string | null>(null);
+
+  useEffect(() => {
+    const socket = io('http://localhost:3010');
+
+    socket.on('sensor-data', (data: SensorData) => {
+      console.log('Received sensor data:', data);
+
+      if (data.type === 'temperatura') {
+        setTemperature(`${data.value} ${data.unit}`);
+      } else if (data.type === 'humedad') {
+        setHumidity(`${data.value} ${data.unit}`);
+      } else if (data.type === 'distancia') {
+        setLight(`${data.value} ${data.unit}`);
+      }
+    });
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="relative w-full max-w-md p-8 space-y-8 bg-white shadow-2xl rounded-lg">
@@ -10,16 +42,16 @@ const Dashboard: React.FC = () => {
         <p className="text-center text-gray-600">Keep an eye on your furry friend's environment.</p>
         <div className="grid grid-cols-3 gap-4">
           <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-lg shadow">
-            <span className="text-2xl font-bold">72°F</span>
-            <span className="text-sm text-gray-600">Temperature</span>
+            <span className="text-2xl font-bold">{temperature || 'N/A'}</span>
+            <span className="text-sm text-gray-600">Temperatura</span>
           </div>
           <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-lg shadow">
-            <span className="text-2xl font-bold">55%</span>
-            <span className="text-sm text-gray-600">Humidity</span>
+            <span className="text-2xl font-bold">{humidity || 'N/A'}</span>
+            <span className="text-sm text-gray-600">Humedad</span>
           </div>
           <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-lg shadow">
-            <span className="text-2xl font-bold">100%</span>
-            <span className="text-sm text-gray-600">Light</span>
+            <span className="text-2xl font-bold">{light || 'N/A'}</span>
+            <span className="text-sm text-gray-600">Alimento</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 mt-4">
